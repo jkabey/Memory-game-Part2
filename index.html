@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Memory Game</h1>
+            <div class="header-controls">
+                <select id="difficulty" onchange="startGame()">
+                    <option value="4x4">Easy (4x4)</option>
+                    <option value="6x6">Hard (6x6)</option>
+                </select>
+                <p>Moves: <span id="move-count">0</span></p>
+                <button onclick="startGame()">New Game</button>
+                <button id="reset-game">Reset Game</button>
+                <p>Time: <span id="timer">00:00</span></p>
+            </div>
+        </div>
+        <div id="grid" class="grid"></div>
+
+        <div class="footer">  <p>Total Moves: <span id="global-move-count">0</span></p>
+            <button id="reset-global-moves">Reset Total Moves</button>
+        </div>
+
+    </div>
+    <audio id="card-flip-sound" src="audio/card-flip-sound.mp3" preload="auto"></audio>
+    <audio id="match-sound" src="audio/Match-sound.mp3" preload="auto"></audio>
+    <audio id="mismatch-sound" src="audio/game-fail-90322.mp3" preload="auto"></audio>
+    <audio id="win-sound" src="audio/funny-comedy-memes-music-comic-humor-joke-background-intro-theme-288430.mp3" preload="auto"></audio>
+    <script src="script.js"></script>
+</body>
+</html>
