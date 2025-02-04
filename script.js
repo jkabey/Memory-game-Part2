@@ -6,6 +6,7 @@ let flippedCards = [];
 let matchedCount = 0;
 let timerInterval;
 let timeElapsed = 0;
+let totalCards; 
 const globalMovesKey = "memoryGameGlobalMoves";
 const gameStateKey = "memoryGameState";
 const moveChannel = new BroadcastChannel("memoryGameMoveChannel");
@@ -28,13 +29,14 @@ const difficultySelect = document.getElementById("difficulty");
 
 function saveGameState() {
     const state = {
+        difficulty: difficultySelect.value,
         moves,
         timeElapsed,
         matchedCount,
         grid: Array.from(document.querySelectorAll(".card")).map(card => ({
             symbol: card.dataset.symbol,
             matched: card.classList.contains("matched"),
-            visible: card.classList.contains("matched")
+            visible: !card.classList.contains("hidden")
         }))
     };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
@@ -66,11 +68,19 @@ resetGlobalMovesButton.addEventListener("click", () => {
 function startGame() {
     const difficulty = difficultySelect.value;
     const [rows, cols] = difficulty.split("x").map(Number);
-    const totalCards = (rows * cols) / 2;
+    const numCards = (rows * cols) / 2;
 
     grid.innerHTML = "";
     grid.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
-    const cards = shuffle([...symbols.slice(0, totalCards), ...symbols.slice(0, totalCards)]);
+
+    let cards;
+    const savedState = loadGameState();
+
+    if (savedState && savedState.difficulty === difficulty) {
+        cards = savedState.grid.map(cardData => cardData.symbol);
+    } else {
+        cards = shuffle([...symbols.slice(0, numCards), ...symbols.slice(0, numCards)]);
+    }
 
     cards.forEach(symbol => {
         const card = document.createElement("div");
@@ -96,13 +106,13 @@ function startGame() {
         saveGameState();
     }, 1000);
 
-    const savedState = loadGameState();
-    if (savedState) {
+    if (savedState && savedState.difficulty === difficulty) {
         const gridElements = document.querySelectorAll(".card");
         savedState.grid.forEach((cardData, index) => {
             if (gridElements[index]) {
                 const card = gridElements[index];
                 card.dataset.symbol = cardData.symbol;
+                card.textContent = cardData.symbol;
                 if (cardData.matched) card.classList.add("matched");
                 if (!cardData.visible) card.classList.add("hidden");
             }
@@ -123,10 +133,11 @@ function startGame() {
         }, 1000);
     }
 
+    totalCards = numCards;  
     return totalCards;
 }
 
-let totalCards;
+
 
 function handleCardClick(event) {
     const card = event.target;
@@ -164,43 +175,27 @@ function handleCardClick(event) {
 }
 
 function resetGame() {
-    const difficulty = difficultySelect.value;
-    const [rows, cols] = difficulty.split("x").map(Number);
-    const totalCards = (rows * cols) / 2;
-
-    moves = 0;
-    flippedCards = [];
-    matchedCount = 0;
-    timeElapsed = 0;
-    clearInterval(timerInterval);
-
-    moveCountDisplay.textContent = moves;
-    timerDisplay.textContent = "00:00";
-
-    const cards = shuffle([...symbols.slice(0, totalCards), ...symbols.slice(0, totalCards)]);
-    grid.innerHTML = "";
-    grid.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
-
-    cards.forEach(symbol => {
-        const card = document.createElement("div");
-        card.classList.add("card", "hidden");
-        card.dataset.symbol = symbol;
-        card.textContent = symbol;
-        card.addEventListener("click", handleCardClick);
-        grid.appendChild(card);
-    });
-
-    timerInterval = setInterval(() => {
-        timeElapsed++;
-        timerDisplay.textContent = new Date(timeElapsed * 1000).toISOString().substr(14, 5);
-        saveGameState();
-    }, 1000);
-
-    saveGameState();
+    localStorage.removeItem(gameStateKey);
+    startGame();
 }
 
+
 document.addEventListener("DOMContentLoaded", () => {
+    const savedState = loadGameState();
+    
+    if (savedState && savedState.difficulty) {
+        difficultySelect.value = savedState.difficulty; 
+    }
+
     totalCards = startGame();
 
     resetGameButton.addEventListener("click", resetGame);
+    difficultySelect.addEventListener("change", () => {
+        saveGameState(); 
+        startGame();
+    });
 });
+
+
+
+
