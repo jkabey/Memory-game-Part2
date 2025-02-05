@@ -9,7 +9,7 @@ let timeElapsed = 0;
 let totalCards; 
 const globalMovesKey = "memoryGameGlobalMoves";
 const gameStateKey = "memoryGameState";
-const moveChannel = new BroadcastChannel("memoryGameMoveChannel");
+// const moveChannel = new BroadcastChannel("memoryGameMoveChannel");
 
 const cardFlipSound = new Audio("audio/card-flip-sound.mp3");
 const matchSound = new Audio("audio/Match-sound.mp3");
